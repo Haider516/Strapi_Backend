@@ -1,0 +1,75 @@
+{
+  "kind": "collectionType",
+  "collectionName": "psl_players",
+  "info": {
+    "singularName": "psl-player",
+    "pluralName": "psl-players",
+    "displayName": "PSLPlayer ",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 30,
+      "minLength": 3
+    },
+    "age": {
+      "type": "integer",
+      "required": true
+    },
+    "nationality": {
+      "type": "string",
+      "required": true,
+      "maxLength": 30,
+      "minLength": 3
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "Platinum",
+        "Diamond",
+        "Gold",
+        "Silver",
+        "Emerging"
+      ],
+      "required": true,
+      "default": "Emerging"
+    },
+    "team": {
+      "type": "string",
+      "required": true,
+      "maxLength": 20,
+      "minLength": 3
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Bowler",
+        "Batsman",
+        "Wicketkeeper",
+        "AllRounder"
+      ],
+      "required": true,
+      "default": "AllRounder"
+    },
+    "coach": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::coach.coach",
+      "inversedBy": "players"
+    }
+  }
+}

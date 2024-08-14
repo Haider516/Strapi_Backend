@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "coaches",
+  "info": {
+    "singularName": "coach",
+    "pluralName": "coaches",
+    "displayName": "coach",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 10,
+      "minLength": 1
+    },
+    "experience": {
+      "type": "integer",
+      "default": 1
+    },
+    "players": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::psl-player.psl-player",
+      "mappedBy": "coach"
+    }
+  }
+}

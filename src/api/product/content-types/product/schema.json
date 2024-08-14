@@ -1,0 +1,77 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "product",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 20,
+      "minLength": 3
+    },
+    "slug": {
+      "type": "uid",
+      "required": true,
+      "maxLength": 50,
+      "minLength": 5
+    },
+    "Description": {
+      "type": "blocks"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "Category": {
+      "type": "enumeration",
+      "enum": [
+        "pen",
+        "pencil",
+        "eraser",
+        "marker",
+        "pointer"
+      ],
+      "default": "pen",
+      "required": true
+    },
+    "size": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "color": {
+      "type": "enumeration",
+      "enum": [
+        "white",
+        "blue",
+        "green",
+        "red",
+        "yellow",
+        "pink",
+        "orange"
+      ],
+      "required": true,
+      "default": "blue"
+    },
+    "price": {
+      "type": "integer",
+      "required": true
+    },
+    "availableQty": {
+      "required": true,
+      "type": "integer"
+    }
+  }
+}
