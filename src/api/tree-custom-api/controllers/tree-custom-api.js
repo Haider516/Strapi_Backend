@@ -143,20 +143,22 @@ function getNodes(objlist, children) {
 function buildTreeFromNestedArray(nestedArray) {
   return nestedArray.map(subArray => {
     subArray = subArray.reverse();
-    console.log('subArray.length', subArray)
-   
+   // console.log('subArray.length', subArray)
+    // if(subArray.length===1){
+    //   subArray[0].status
+    // }
     // Start from the last element and work upwards
     for (let i = subArray.length - 2; i >= 0; i--) {  //3-2;1>0;1--
       subArray[i].children = [subArray[i + 1]];   // 
-     // console.log("dvsfd");
+      // console.log("dvsfd");
 
       subArray[i].status = true;
 
       subArray.pop(); // Remove the child node as it has been added to the parent
       subArray[i].status = subArray[i].children.length > 0 ? true : false;
-   
+
     }
-   // let  newSubArray =getlastNestedChildStatus(subArray[0])
+    // let  newSubArray =getlastNestedChildStatus(subArray[0])
     return subArray[0]; // Return the root of each subArray
   });
 }
@@ -224,6 +226,57 @@ function removeDuplicatesKeepDeepest(arr) {
 }
 
 
+//   ___________________________________________________________________
+
+// Step 1: Remove duplicates based on `id` and `name` and merge children
+function mergeNestedObjects(arr) {
+  let idNameMap = {};
+
+  // Iterate through the array to merge duplicates
+  for (let obj of arr) {
+    let key = `${obj.id}-${obj.name}`;
+
+    if (idNameMap[key]) {
+      // Merge the objects if they share the same id and name
+      mergeObjects(idNameMap[key], obj);
+    } else {
+      // Add the object to the map if it's the first occurrence
+      idNameMap[key] = obj;
+    }
+  }
+
+  return Object.values(idNameMap);
+}
+
+function mergeObjects(base, update) {
+  // Merge top-level properties (e.g., createdAt, updatedAt) if needed
+  // (This example assumes no need to merge these properties.)
+
+  // Merge children if both base and update have children
+  if (base.children && update.children) {
+    let baseChildMap = new Map();
+
+    for (let child of base.children) {
+      baseChildMap.set(child.id, child);
+    }
+
+    for (let updateChild of update.children) {
+      if (baseChildMap.has(updateChild.id)) {
+        // If the child exists in base, recursively merge them
+        mergeObjects(baseChildMap.get(updateChild.id), updateChild);
+      } else {
+        // Otherwise, add the new child to the base's children
+        base.children.push(updateChild);
+      }
+    }
+  } else if (update.children) {
+    // If only the update has children, just add them to the base
+    base.children = update.children;
+  }
+}
+
+
+//  ______________________________________________________________________________
 module.exports = {
   //findNodesWithNullParent
 
@@ -267,8 +320,7 @@ module.exports = {
   async filterTree(ctx) {
     try {
       const { filterData } = ctx.params;
-      //  let idINT = parseInt(id);
-      //   console.log("filterData", filterData);
+
       const data = await strapi.service('api::tree-custom-api.tree-custom-api').getNodesTest();
       // console.log("data", data);
       let newData = processingDataNodes(data);
@@ -320,7 +372,7 @@ module.exports = {
     try {
       const { id } = ctx.params;
       const { parent } = ctx.request.body.data;
-      console.log({ parent })
+      //   console.log({ parent })
 
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').updateNodePosition(parent, id);
       ctx.send(node);
@@ -330,7 +382,7 @@ module.exports = {
   },
 
   //findValue 
-  async findingNodes(ctx) {
+  async findingNode(ctx) {
     try {
       const { filterData } = ctx.params;
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').findValue(filterData);
@@ -339,10 +391,10 @@ module.exports = {
 
       let tree = buildTreeFromNestedArray(node);
       //  console.log("tree",tree,"\n");
-
-      let finalizedTree = removeDuplicatesKeepDeepest(tree);
- //     console.log('finalizedTree', finalizedTree);
-      ctx.send(finalizedTree);
+      let magic = mergeNestedObjects(tree)
+    //  let finalizedTree = removeDuplicatesKeepDeepest(tree);
+      //     console.log('finalizedTree', finalizedTree);
+      ctx.send(magic);
     } catch (error) {
       ctx.send({ message: `  ${error.message}` });
     }
@@ -351,9 +403,10 @@ module.exports = {
   async findingPaginatedNodes(ctx) {
     try {
       const { name } = ctx.params;
-      console.log("name", name);
+      let name1=parseInt(name)
+      // console.log("name", name);
 
-      const node = await strapi.service('api::tree-custom-api.tree-custom-api').getChildrenPaginated(name);
+      const node = await strapi.service('api::tree-custom-api.tree-custom-api').getChildrenPaginated(name1);
 
       ctx.send(node);
     } catch (error) {

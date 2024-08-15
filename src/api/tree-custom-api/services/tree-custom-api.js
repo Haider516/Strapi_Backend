@@ -248,12 +248,15 @@ module.exports = {
     }
 
     // Return the entries and the full lineages
-    console.log("Node Lineages", nodeLineages);
+    // console.log("Node Lineages", nodeLineages);
 
     for (let index = 0; index < nodeLineages.length; index++) {
-      //   let tempNode = nodeLineages[index][0] ;  
-
-      for (let index1 = 0; index < nodeLineages[index].length; index1++) {
+     // let tempNode = nodeLineages[index];
+     console.log('nodeLineages[index]', nodeLineages[index])
+      
+      for (let index1 = 0; index <= nodeLineages[index].length; index1++) {
+        let tempNode = nodeLineages[index][index1];
+      //  console.log('tempNode', tempNode);
 
         const children = await strapi.entityService.findMany('api::node.node', {
           filters: {
@@ -263,12 +266,14 @@ module.exports = {
           },
         });
 
-        // Add the status property
+    //       Adding the status property
         nodeLineages[index][index1].status = children.length > 0;
+        console.log(' nodeLineages[index][index1].status', nodeLineages[index][index1]);
 
         break;
       }
     }
+
     return nodeLineages
   },
 
@@ -313,7 +318,7 @@ module.exports = {
     const children = await strapi.entityService.findMany('api::node.node', {
       filters: {
         parent: {
-          name: parentName,
+          id: parentName,
         },
       },
     });
@@ -334,7 +339,7 @@ module.exports = {
         return {
           id: child.id,
           name: child.name,
-          status: grandChildren.length > 0, 
+          status: grandChildren.length > 0,
         };
       })
     );

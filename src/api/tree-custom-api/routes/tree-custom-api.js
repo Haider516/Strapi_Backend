@@ -13,7 +13,7 @@ module.exports = {
     {
       method: 'GET',
       path: '/tree-custom-api/filter/:filterData',
-      handler: 'tree-custom-api.findingNodes',
+      handler: 'tree-custom-api.findingNode',
       config: {
         policies: [],
         middlewares: [],
