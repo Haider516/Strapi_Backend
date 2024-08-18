@@ -143,7 +143,7 @@ function getNodes(objlist, children) {
 function buildTreeFromNestedArray(nestedArray) {
   return nestedArray.map(subArray => {
     subArray = subArray.reverse();
-   // console.log('subArray.length', subArray)
+    // console.log('subArray.length', subArray)
     // if(subArray.length===1){
     //   subArray[0].status
     // }
@@ -336,9 +336,13 @@ module.exports = {
       const { name, parent } = ctx.request.body.data;
       console.log({ name, parent });
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').addNode(name, parent);
-      ctx.send(node);
+      ctx.send(
+        {
+          status: true,
+          item :node
+        });
     } catch (error) {
-      ctx.send({ message: `we got error ${error.message}` });
+      ctx.send({ status:false, message: `we got error ${error.message}` });
     }
   },
 
@@ -346,9 +350,14 @@ module.exports = {
     try {
       const { id } = ctx.params;
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').deleteNode(id);
-      ctx.send(node);
+      ctx.send(
+        {
+          status: true,
+          item :node
+        });
+      
     } catch (error) {
-      ctx.send({ message: `  ${error.message}` });
+      ctx.send({ status:false, message: `we got error ${error.message}` });
     }
   },
 
@@ -360,9 +369,13 @@ module.exports = {
       console.log({ name })
 
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').updateNode(name, id);
-      ctx.send(node);
+      ctx.send(
+        {
+          status: true,
+          item :node
+        });
     } catch (error) {
-      ctx.send({ message: `  ${error.message}` });
+      ctx.send({ status:false, message: `we got error ${error.message}` });
     }
   },
 
@@ -375,7 +388,9 @@ module.exports = {
       //   console.log({ parent })
 
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').updateNodePosition(parent, id);
-      ctx.send(node);
+      ctx.send( {
+        status: true
+      });
     } catch (error) {
       ctx.send({ message: `  ${error.message}` });
     }
@@ -392,7 +407,7 @@ module.exports = {
       let tree = buildTreeFromNestedArray(node);
       //  console.log("tree",tree,"\n");
       let magic = mergeNestedObjects(tree)
-    //  let finalizedTree = removeDuplicatesKeepDeepest(tree);
+      //  let finalizedTree = removeDuplicatesKeepDeepest(tree);
       //     console.log('finalizedTree', finalizedTree);
       ctx.send(magic);
     } catch (error) {
@@ -402,16 +417,31 @@ module.exports = {
 
   async findingPaginatedNodes(ctx) {
     try {
-      const { name } = ctx.params;
-      let name1=parseInt(name)
+      const { id } = ctx.params;
+      let id1 = parseInt(id)
       // console.log("name", name);
 
-      const node = await strapi.service('api::tree-custom-api.tree-custom-api').getChildrenPaginated(name1);
+      const node = await strapi.service('api::tree-custom-api.tree-custom-api').getChildrenPaginated(id1);
 
       ctx.send(node);
     } catch (error) {
       ctx.send({ message: `  ${error.message}` });
     }
-  }
+  },
 
+//  new-added 
+  async positionData(ctx){
+
+    try {
+      const { id } = ctx.params;
+      const node = await strapi.service('api::tree-custom-api.tree-custom-api').findAncestors(id);
+      
+      ctx.send({
+        status: true,
+        item :node
+      });
+    } catch (error) {
+      ctx.send({ message: `  ${error.message}` });
+    }
+  }
 };

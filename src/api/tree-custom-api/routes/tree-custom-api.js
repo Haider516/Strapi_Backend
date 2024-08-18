@@ -23,14 +23,14 @@ module.exports = {
     //findingPaginatedNodes
     {
       method: 'GET',
-      path: '/tree-custom-api/withname/:name',
+      path: '/tree-custom-api/withname/:id',
       handler: 'tree-custom-api.findingPaginatedNodes',
       config: {
         policies: [],
         middlewares: [],
       },
     },
-    
+
     {
       method: 'POST',
       path: '/tree-custom-api',
@@ -58,6 +58,7 @@ module.exports = {
         middlewares: [],
       },
     },
+    //this  
     {
       method: 'PUT',
       path: '/tree-custom-api/postion/:id',
@@ -71,6 +72,16 @@ module.exports = {
       method: 'GET',
       path: '/tree-custom-api/:id',
       handler: 'tree-custom-api.getDataWithID',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
+    //To Get Selector Dropdown Data 
+    {
+      method: 'GET',
+      path: '/tree-custom-api/postionData/:id',
+      handler: 'tree-custom-api.positionData',
       config: {
         policies: [],
         middlewares: [],

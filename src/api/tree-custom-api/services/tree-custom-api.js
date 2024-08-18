@@ -71,6 +71,7 @@ module.exports = {
           "parent": parentId,
         },
       });
+      console.log("node", node)
       return node;
     } catch (err) {
       throw new Error('Error creating node');
@@ -251,22 +252,22 @@ module.exports = {
     // console.log("Node Lineages", nodeLineages);
 
     for (let index = 0; index < nodeLineages.length; index++) {
-     // let tempNode = nodeLineages[index];
-     console.log('nodeLineages[index]', nodeLineages[index])
-      
+      // let tempNode = nodeLineages[index];
+      console.log('nodeLineages[index]', nodeLineages[index])
+
       for (let index1 = 0; index <= nodeLineages[index].length; index1++) {
         let tempNode = nodeLineages[index][index1];
-      //  console.log('tempNode', tempNode);
+        //  console.log('tempNode', tempNode);
 
         const children = await strapi.entityService.findMany('api::node.node', {
           filters: {
             parent: {
-              name: nodeLineages[index][index1].name,
+              id: nodeLineages[index][index1].id,
             },
           },
         });
 
-    //       Adding the status property
+        //       Adding the status property
         nodeLineages[index][index1].status = children.length > 0;
         console.log(' nodeLineages[index][index1].status', nodeLineages[index][index1]);
 
@@ -313,12 +314,12 @@ module.exports = {
   },
 
   //http://localhost:1337/api/nodes?filters[parent][name][$eq]=ab
-  async getChildrenPaginated(parentName) {
-    // Step 1: Fetch nodes where the given parentName is the parent
+  async getChildrenPaginated(parentId) {
+    // Step 1: Fetch nodes where the given parent id  is the same
     const children = await strapi.entityService.findMany('api::node.node', {
       filters: {
         parent: {
-          id: parentName,
+          id: parentId,
         },
       },
     });
@@ -330,7 +331,7 @@ module.exports = {
         const grandChildren = await strapi.entityService.findMany('api::node.node', {
           filters: {
             parent: {
-              name: child.name,
+              id: child.id,
             },
           },
         });
@@ -346,9 +347,64 @@ module.exports = {
 
     // Step 4: Return the result array of objects
     return result;
+  },
+
+  async findAncestors(id) {
+    // Retrieve all nodes with only ID and Name
+    const allNodes = await strapi.entityService.findMany('api::node.node', {
+      fields: ['id', 'name'],
+    });
+  
+    // Fetch the first children of the given node
+    const firstChildren = await strapi.entityService.findMany('api::node.node', {
+      filters: {
+        parent: {
+          id: id,
+        },
+      },
+      fields: ['id', 'name'],
+    });
+  
+    // Get all descendants recursively
+    const descendants = await this.getDescendants(firstChildren);
+  
+    // Extract the IDs of all descendants and add the original node's ID
+    const descendantIds = descendants.map(descendant => descendant.id);
+  
+    descendantIds.push(parseInt(id));//  console.log(descendantIds)
+  
+    // Filter out the descendants and the original node from allNodes
+    const selectedOptions = allNodes.filter(node => !descendantIds.includes(node.id));
+  
+    return  selectedOptions 
+  },
+  
+
+  async  getDescendants(childList) {
+    let list = [];
+  
+    for (const item of childList) {
+      list.push(item);
+  
+      // Fetch children of the current node
+      const children = await strapi.entityService.findMany('api::node.node', {
+        filters: {
+          parent: {
+            id: item.id,
+          },
+        },
+        fields: ['id', 'name'],
+      });
+  
+      if (children.length > 0) {
+        // Recursively fetch descendants of the current children
+        const childDescendants = await this.getDescendants(children);
+        list = list.concat(childDescendants);
+      }
+    }
+  
+    return list;
   }
-
-
 };
 
 
