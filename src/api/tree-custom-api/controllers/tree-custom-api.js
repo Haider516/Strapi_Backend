@@ -339,10 +339,10 @@ module.exports = {
       ctx.send(
         {
           status: true,
-          item :node
+          item: node
         });
     } catch (error) {
-      ctx.send({ status:false, message: `we got error ${error.message}` });
+      ctx.send({ status: false, message: `we got error ${error.message}` });
     }
   },
 
@@ -353,11 +353,11 @@ module.exports = {
       ctx.send(
         {
           status: true,
-          item :node
+          item: node
         });
-      
+
     } catch (error) {
-      ctx.send({ status:false, message: `we got error ${error.message}` });
+      ctx.send({ status: false, message: `we got error ${error.message}` });
     }
   },
 
@@ -372,10 +372,10 @@ module.exports = {
       ctx.send(
         {
           status: true,
-          item :node
+          item: node
         });
     } catch (error) {
-      ctx.send({ status:false, message: `we got error ${error.message}` });
+      ctx.send({ status: false, message: `we got error ${error.message}` });
     }
   },
 
@@ -388,7 +388,7 @@ module.exports = {
       //   console.log({ parent })
 
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').updateNodePosition(parent, id);
-      ctx.send( {
+      ctx.send({
         status: true
       });
     } catch (error) {
@@ -429,16 +429,16 @@ module.exports = {
     }
   },
 
-//  new-added 
-  async positionData(ctx){
+  //  new-added 
+  async positionData(ctx) {
 
     try {
       const { id } = ctx.params;
       const node = await strapi.service('api::tree-custom-api.tree-custom-api').findAncestors(id);
-      
+
       ctx.send({
         status: true,
-        item :node
+        item: node
       });
     } catch (error) {
       ctx.send({ message: `  ${error.message}` });

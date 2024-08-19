@@ -81,14 +81,44 @@ module.exports = {
   //delete
   async deleteNode(id) {
     try {
-      parseInt(id)
-      console.log("delete service:", id)
-      const node = await strapi.entityService.delete('api::node.node', id);
+      id = parseInt(id); // Ensure the ID is an integer
+      console.log("delete service:", id);
+
+      // Fetch the first children of the given node
+      const firstChildren = await strapi.entityService.findMany('api::node.node', {
+        filters: {
+          parent: {
+            id: id,
+          },
+        },
+        fields: ['id', 'name'],
+      });
+
+
+      let descendantIds = [];
+      if (firstChildren.length > 0) {
+        const descendants = await this.getDescendants(firstChildren);
+        descendantIds = descendants.map(descendant => descendant.id);
+      }
+
+      // Add the original node's ID to the list
+      descendantIds.push(id);
+      let node;
+      // Delete the node and its descendants
+      for (let i = 0; i < descendantIds.length; i++) {
+        const nodeId = descendantIds[i];
+        console.log(`Deleting node with ID: ${nodeId}`);
+        node = await strapi.entityService.delete('api::node.node', nodeId);
+      }
+      console.log(node);
+
       return node;
     } catch (err) {
+      console.error('Error Deleting Node:', err);
       throw new Error('Error Deleting Node');
     }
   },
+
 
   //updateNode
   async updateNode(name, id) {
@@ -354,7 +384,7 @@ module.exports = {
     const allNodes = await strapi.entityService.findMany('api::node.node', {
       fields: ['id', 'name'],
     });
-  
+
     // Fetch the first children of the given node
     const firstChildren = await strapi.entityService.findMany('api::node.node', {
       filters: {
@@ -364,28 +394,28 @@ module.exports = {
       },
       fields: ['id', 'name'],
     });
-  
+
     // Get all descendants recursively
     const descendants = await this.getDescendants(firstChildren);
-  
+
     // Extract the IDs of all descendants and add the original node's ID
     const descendantIds = descendants.map(descendant => descendant.id);
-  
+
     descendantIds.push(parseInt(id));//  console.log(descendantIds)
-  
+
     // Filter out the descendants and the original node from allNodes
     const selectedOptions = allNodes.filter(node => !descendantIds.includes(node.id));
-  
-    return  selectedOptions 
-  },
-  
 
-  async  getDescendants(childList) {
+    return selectedOptions
+  },
+
+
+  async getDescendants(childList) {
     let list = [];
-  
+
     for (const item of childList) {
       list.push(item);
-  
+
       // Fetch children of the current node
       const children = await strapi.entityService.findMany('api::node.node', {
         filters: {
@@ -395,14 +425,14 @@ module.exports = {
         },
         fields: ['id', 'name'],
       });
-  
+
       if (children.length > 0) {
         // Recursively fetch descendants of the current children
         const childDescendants = await this.getDescendants(children);
         list = list.concat(childDescendants);
       }
     }
-  
+
     return list;
   }
 };
